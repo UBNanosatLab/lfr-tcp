@@ -3,7 +3,7 @@ REV=$(shell git describe --dirty --always)
 CC=gcc
 CFLAGS=-Wall -Werror
 
-SOURCES=lfr-tcp.c
+SOURCES=lfr-tcp.c cmd_parser.c cmd_handler.c
 
 all: lfr-tcp
 
