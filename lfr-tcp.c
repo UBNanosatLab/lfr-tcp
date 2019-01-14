@@ -5,6 +5,7 @@
  */
 
 #include <stdlib.h>
+#include <stdint.h>
 #include <stdarg.h>
 #include <errno.h>
 #include <string.h>

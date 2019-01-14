@@ -4,6 +4,8 @@
  * See LICENSE for details
  */
 
+#include <stdint.h>
+
 #include "cmd_parser.h"
 #include "cmd_handler.h"
 //#define USE_PRINTF

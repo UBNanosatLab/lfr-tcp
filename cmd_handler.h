@@ -7,6 +7,8 @@
 #ifndef CMD_HANDLER_H
 #define CMD_HANDLER_H
 
+#include <stdint.h>
+
 /**
  * Send reply character
  * @param c the character to send

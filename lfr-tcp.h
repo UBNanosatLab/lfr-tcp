@@ -7,6 +7,8 @@
 #ifndef LFR_TCP_H
 #define LFR_TCP_H
 
+#include <stdint.h>
+
 #define MAX_PKT_SIZE 255
 
 #define KISS_BUF_SIZE 512

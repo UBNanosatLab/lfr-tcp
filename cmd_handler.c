@@ -6,6 +6,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 #include "lfr-tcp.h"
 #include "cmd_handler.h"
