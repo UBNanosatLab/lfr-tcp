@@ -35,7 +35,7 @@ class Command(Enum):
 
     REPLY = 0x80
 
-def feltcher(chksum, byte):
+def fletcher(chksum, byte):
     lsb = chksum & 0xFF
     msb = chksum >> 8
     msb += byte
@@ -47,7 +47,7 @@ def feltcher(chksum, byte):
 def compute_chksum(data):
     chksum = 0
     for x in data:
-        chksum = feltcher(chksum, ord(x))
+        chksum = fletcher(chksum, ord(x))
     return chksum
 
 def create_tx_pkt(data):
