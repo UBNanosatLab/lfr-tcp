@@ -13,6 +13,7 @@
 #include "cmd_parser.h"
 
 void cmd_nop() {
+    log_info("NOP:(\n");
     set_cmd_flag(FLAG_GOODCMD);
     reply(sys_stat, CMD_NOP, 0, NULL);
 }
