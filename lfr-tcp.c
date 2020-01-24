@@ -26,12 +26,6 @@ int uartfd = -1;
 uint8_t sys_stat = 0;
 uint16_t tx_gate_bias;
 
-void set_cmd_flag(uint8_t flag)
-{
-    sys_stat &= ~(FLAG_GOODCMD | FLAG_INVALID | FLAG_BADSUM);
-    sys_stat |= flag;
-}
-
 void log_err(const char *fmt, ...)
 {
         va_list args;
@@ -320,7 +314,7 @@ int process_kiss(uint8_t *buf, int len)
     
     if (cmd == 0) {
         log_data("RX", pkt, j);
-        reply(sys_stat, CMD_RXDATA, j, pkt);
+        reply(CMD_RXDATA, j, pkt);
     } else {
         log_err("ERROR processing KISS: unknown command %d\n", cmd);
         return -1;

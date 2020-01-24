@@ -75,7 +75,11 @@ void parse_char(uint8_t c) {
         payload_len = c;
         payload_counter = 0;
         calc_checksum = fletcher(calc_checksum, c);
-        next_state = S_PAYLOAD;
+        if (payload_len) {
+            next_state = S_PAYLOAD;
+        } else {
+            next_state = S_CHECKSUM0;
+        }
       } else result = R_INVALID;
       break;
     case S_PAYLOAD:
@@ -129,7 +133,14 @@ bool validate_cmd(uint8_t cmd) {
     case CMD_READ_TXPWR:
     case CMD_SET_TXPWR:
     case CMD_TXDATA:
+    case CMD_TX_PSR:
+    case CMD_TX_ABORT:
     case CMD_SET_FREQ:
+    case CMD_GET_CFG:
+    case CMD_SET_CFG:
+    case CMD_SAVE_CFG:
+    case CMD_CFG_DEFAULT:
+    case CMD_GET_QUEUE_DEPTH:
       return true;
     default:
       return false;
@@ -149,6 +160,8 @@ bool validate_length(uint8_t cmd, uint8_t len) {
       return len > 0;
     case CMD_SET_FREQ:
       return len == 4;
+    case CMD_SET_CFG:
+          return len > 0; // Allow any non-zero here, we check it in the cmd callback
     default:
       return len == 0;
   }
@@ -177,6 +190,7 @@ void command_handler(uint8_t cmd, uint8_t len, uint8_t* payload) {
         break;
       case CMD_SET_TXPWR:
         cmd_set_txpwr((uint16_t) payload[0] << 8 | payload[1]);
+        break;
       case CMD_TXDATA:
         cmd_tx_data(len, payload);
         break;
@@ -184,17 +198,37 @@ void command_handler(uint8_t cmd, uint8_t len, uint8_t* payload) {
         cmd_set_freq((uint32_t) payload[0] << 24 | (uint32_t) payload[1] << 16 | (uint32_t) payload[2] << 8 |
                      payload[3]);
         break;
+      case CMD_TX_PSR:
+        cmd_tx_psr();
+        break;
+      case CMD_TX_ABORT:
+        cmd_abort_tx();
+        break;
+      case CMD_GET_CFG:
+          cmd_get_cfg();
+          break;
+      case CMD_SET_CFG:
+          cmd_set_cfg(len, payload);
+        break;
+      case CMD_SAVE_CFG:
+          cmd_save_cfg();
+          break;
+      case CMD_CFG_DEFAULT:
+          cmd_cfg_default();
+          break;
+      case CMD_GET_QUEUE_DEPTH:
+          cmd_get_queue_depth();
+          break;
     }
 }
 
-void reply_error(uint8_t sys_stat, uint8_t code)
+void reply_error(uint8_t code)
 {
+    uint16_t chksum = 0;
     reply_putc(SYNCWORD_H);
     reply_putc(SYNCWORD_L);
-    reply_putc(sys_stat);
-    uint16_t chksum = fletcher(0, sys_stat);
-    reply_putc(CMD_ERR);
-    chksum = fletcher(chksum, CMD_ERR);
+    reply_putc(CMD_REPLYERR);
+    chksum = fletcher(chksum, CMD_REPLYERR);
     reply_putc(1);
     chksum = fletcher(chksum, 1);
     reply_putc(code);
@@ -203,13 +237,12 @@ void reply_error(uint8_t sys_stat, uint8_t code)
     reply_putc((char) chksum);
 }
 
-void reply(uint8_t sys_stat, uint8_t cmd, int len, uint8_t *payload)
+void reply(uint8_t cmd, int len, uint8_t *payload)
 {
+    uint16_t chksum = 0;
     cmd ^= 0x80; // Flip highest bit in reply
     reply_putc(SYNCWORD_H);
     reply_putc(SYNCWORD_L);
-    reply_putc(sys_stat);
-    uint16_t chksum = fletcher(0, sys_stat);
     reply_putc(cmd);
     chksum = fletcher(chksum, cmd);
 
