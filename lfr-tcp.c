@@ -470,7 +470,10 @@ int main(int argc, char **argv)
                 return -1;
             }
 
-            process_kiss(buf, n);
+            for (int i = 0; i < n; i ++) {
+                kiss_char(buf[i]);
+            }
+            
         }
     }
 
