@@ -431,6 +431,8 @@ int main(int argc, char **argv)
             if (newfd < 0) {
                 log_err("ERROR accepting socket: %s\n", strerror(errno));
             } else {
+                int flags;
+
                 log_info("New UART connection from %s\n", 
                          inet_ntoa(clientaddr.sin_addr));
                 
@@ -439,6 +441,18 @@ int main(int argc, char **argv)
                     close(uartfd);
                     FD_CLR(uartfd, &fds);
                     uartfd = -1;
+                }
+
+                flags = fcntl(newfd, F_GETFL, 0);
+                if (flags == -1) {
+                    log_err("ERROR getting UART socket flags: %s\n", strerror(errno));
+                    return -1;
+                }
+                flags |= O_NONBLOCK;
+                flags = fcntl(newfd, F_SETFL, flags);
+                if (flags == -1) {
+                    log_err("ERROR setting UART socket flags: %s\n", strerror(errno));
+                    return -1;
                 }
 
                 uartfd = newfd;
