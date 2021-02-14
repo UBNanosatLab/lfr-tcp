@@ -1,9 +1,9 @@
-REV=$(shell git describe --dirty --always)
+REV = $(shell git describe --dirty --always)
 
-CC=gcc
-CFLAGS=-Wall -Werror
+CC ?= gcc
+CFLAGS = -Wall -Werror -O2
 
-SOURCES=lfr-tcp.c cmd_parser.c cmd_handler.c
+SOURCES = lfr-tcp.c cmd_parser.c cmd_handler.c
 
 all: lfr-tcp
 
