@@ -205,6 +205,12 @@ int open_server(char *host, int port)
         log_err("Error opening socket: %s\n", strerror(errno));
         return -1;
     }
+
+    int enable = 1;
+    if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0) {
+        log_err("ERROR setting socket options: %s\n", strerror(errno));
+        return -1; 
+    }
     
     memset(&serv_addr, '0', sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
