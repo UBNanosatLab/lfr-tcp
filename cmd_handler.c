@@ -112,14 +112,15 @@ void cmd_save_cfg() {
 
 void cmd_get_queue_depth() {
     int err = 0;
-    uint8_t depth = 0;
+    uint16_t depth = 0;
+    uint8_t data[] = {depth >> 8, depth & 0xFF};
 
     log_info("GET_QUEUE_DEPTH\n");
 
     if (err) {
         reply_error((uint8_t) -err);
     } else {
-        reply(CMD_GET_QUEUE_DEPTH, 1, &depth);
+        reply(CMD_GET_QUEUE_DEPTH, sizeof(data), data);
     }
 }
 
